@@ -226,7 +226,7 @@ class MazeEnvironment:
                 if event.type == pygame.QUIT:
                     self.running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    if event.button == 1:  # Left click creates new maze
+                    if event.button == 1: # Left click creates new maze
                         self.maze_grid = self.generate_maze(GRID_SIZE, GRID_SIZE)
                         self.start, self.end = self.place_start_end_points()
                         self.reset_search()
@@ -238,9 +238,9 @@ class MazeEnvironment:
                     elif event.key == pygame.K_r: # R to reset search
                         self.reset_search()
                     elif event.key == pygame.K_UP: # Up arrow to increase speed of search visual
-                        self.visualization_speed = min(10, self.visualization_speed + 1)
+                        self.visualization_speed = min(50, self.visualization_speed + 2)
                     elif event.key == pygame.K_DOWN: # Down arrow to decrease speed of search visual
-                        self.visualization_speed = max(1, self.visualization_speed - 1)
+                        self.visualization_speed = max(1, self.visualization_speed - 2)
 
             # Update A* visualization if not paused
             if not self.paused and self.astar_generator:
