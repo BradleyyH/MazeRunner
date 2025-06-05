@@ -10,7 +10,7 @@ from astar_search import astar_search
 # The start is represented by a green cell, and the end represented by a red cell.
 
 WINDOW_SIZE = 800
-GRID_SIZE = 50  # Number of maze cells excluding the border
+GRID_SIZE = 10  # Number of maze cells excluding the border
 CELL_SIZE = WINDOW_SIZE / (GRID_SIZE * 2 + 1)
 
 WHITE = (255, 255, 255)
@@ -36,6 +36,12 @@ class MazeEnvironment:
         # Generate the maze and position the start and end points
         self.maze_grid = self.generate_maze(GRID_SIZE, GRID_SIZE)
         self.start, self.end = self.place_start_end_points()
+        self.path = astar_search(self.maze_grid, self.start, self.end)
+        if self.path:
+            print(self.path)
+            print("Path found! Length:", len(self.path))
+        else:
+            print("No path found.")
 
     def generate_maze(self, num_rows, num_cols):
         """
@@ -195,18 +201,19 @@ class MazeEnvironment:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
-                # Click to generate a new maze (temp for testing)
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     self.maze_grid = self.generate_maze(GRID_SIZE, GRID_SIZE)
                     self.start, self.end = self.place_start_end_points()
+                    self.path = astar_search(self.maze_grid, self.start, self.end)
+                    if self.path:
+                        print(self.path)
+                        print("Path found with length:", len(self.path))
+                    else:
+                        print("No path found.")
             self.screen.fill(WHITE)
             self.draw_maze()
             pygame.display.flip()
             self.clock.tick(60)
-
-            # Call A* search algorithm to find path of random maze
-            path = astar_search(self.maze_grid, self.start, self.end)
-            print(path)
 
         pygame.quit()
         sys.exit()
