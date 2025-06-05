@@ -3,6 +3,7 @@ import sys
 import random
 import numpy as np
 import os
+from astar_search import astar_search
 
 # Maze generation algorithm
 # This project generates a random maze using a Depth First Search (DFS) algorithm.
@@ -202,6 +203,10 @@ class MazeEnvironment:
             self.draw_maze()
             pygame.display.flip()
             self.clock.tick(60)
+
+            path = astar_search(self.maze_grid, self.start, self.end)
+            print(path)  # This will print the list of (row, col) tuples if a path is found
+
         pygame.quit()
         sys.exit()
 
