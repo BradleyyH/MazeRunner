@@ -204,8 +204,9 @@ class MazeEnvironment:
             pygame.display.flip()
             self.clock.tick(60)
 
+            # Call A* search algorithm to find path of random maze
             path = astar_search(self.maze_grid, self.start, self.end)
-            print(path)  # This will print the list of (row, col) tuples if a path is found
+            print(path)
 
         pygame.quit()
         sys.exit()

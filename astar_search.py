@@ -43,12 +43,11 @@ def astar_search(maze: np.ndarray, start: Tuple[int, int], end: Tuple[int, int])
         closed_set.add(current)
         for d_row, d_col in neighbors:
             neighbor = (current[0] + d_row, current[1] + d_col)
-            # Check bounds
             if 0 <= neighbor[0] < maze.shape[0] and 0 <= neighbor[1] < maze.shape[1]:
                 if maze[neighbor[0]][neighbor[1]] == 1:
-                    continue  # Wall
+                    continue
             else:
-                continue  # Out of bounds
+                continue
             if neighbor in closed_set:
                 continue
             tentative_g_score = g_score[current] + 1
