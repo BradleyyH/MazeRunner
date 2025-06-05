@@ -33,4 +33,4 @@ python mazeEnvironment.py
 ## Planned Features
 - [x] Procedural maze generation using recursive backtracking
 - [x] A* pathfinding algorithm
-- [ ] Visualising optimal path being found in real time
+- [x] Visualising optimal path being found in real time
