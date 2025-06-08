@@ -10,7 +10,7 @@ from astar_search import astar_search
 # The start is represented by a green cell, and the end represented by a red cell.
 
 WINDOW_SIZE = 800
-GRID_SIZE = 50  # Number of maze cells excluding the border
+GRID_SIZE = 10  # Number of maze cells excluding the border
 CELL_SIZE = WINDOW_SIZE / (GRID_SIZE * 2 + 1)
 
 # Maze generation colours
@@ -30,7 +30,7 @@ class MazeEnvironment:
     def __init__(self):
         # Set up the Pygame window
         self.screen = pygame.display.set_mode((WINDOW_SIZE, WINDOW_SIZE))
-        pygame.display.set_caption("Random Maze Generator with solution visualised")
+        pygame.display.set_caption("Random Maze Generator With A* Search Solution")
         self.clock = pygame.time.Clock()
         self.running = True
 
@@ -230,8 +230,6 @@ class MazeEnvironment:
                         self.maze_grid = self.generate_maze(GRID_SIZE, GRID_SIZE)
                         self.start, self.end = self.place_start_end_points()
                         self.reset_search()
-                    elif event.button == 3:  # Right click
-                        self.paused = not self.paused
                 elif event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_SPACE: # Space to pause search
                         self.paused = not self.paused

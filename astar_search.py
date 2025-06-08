@@ -21,6 +21,7 @@ def astar_search(
         List of (row, col) tuples representing the path from the start to the end.
         Returns None if no path is found (Should never happen).
         
+        
     Generator version of the A* search algorithm to show the pathfinding process.
     Yields a dict with the current state at each step:
       - 'current': the current node
