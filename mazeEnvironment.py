@@ -13,11 +13,16 @@ WINDOW_SIZE = 800
 GRID_SIZE = 10  # Number of maze cells excluding the border
 CELL_SIZE = WINDOW_SIZE / (GRID_SIZE * 2 + 1)
 
-WHITE = (255, 255, 255)
-BLACK = (0, 0, 0)
-GREEN = (0, 255, 0)
-RED = (255, 0, 0)
+# Maze generation colours
+WHITE = (255, 255, 255) # Paths throughout maze
+BLACK = (0, 0, 0) # Walls in maze
+GREEN = (0, 255, 0) # Start position
+RED = (255, 0, 0) # End position
 
+# A* search colours
+BLUE = (0, 0, 255) # Final optimal path
+LIGHT_BLUE = (173, 216, 230) # Cells algorithm has explored
+YELLOW = (255, 255, 0) # Frontier cells
 
 pygame.init()
 
@@ -25,7 +30,7 @@ class MazeEnvironment:
     def __init__(self):
         # Set up the Pygame window
         self.screen = pygame.display.set_mode((WINDOW_SIZE, WINDOW_SIZE))
-        pygame.display.set_caption("Random Maze Generator")
+        pygame.display.set_caption("Random Maze Generator With A* Search Solution")
         self.clock = pygame.time.Clock()
         self.running = True
 
@@ -36,12 +41,21 @@ class MazeEnvironment:
         # Generate the maze and position the start and end points
         self.maze_grid = self.generate_maze(GRID_SIZE, GRID_SIZE)
         self.start, self.end = self.place_start_end_points()
-        self.path = astar_search(self.maze_grid, self.start, self.end)
-        if self.path:
-            print(self.path)
-            print("Path found! Length:", len(self.path))
-        else:
-            print("No path found.")
+        
+        # A* visualization state
+        # Variables to show the algorithm search in real time
+        self.astar_generator = None
+        self.current_state = None # Current state of maze
+        self.visualization_speed = 1 # Speed algorithm is shown/visualised
+        self.paused = False              
+        
+        # Start the A* search
+        self.reset_search()
+
+    def reset_search(self):
+        """Reset the A* search to start from the beginning."""
+        self.astar_generator = astar_search(self.maze_grid, self.start, self.end)
+        self.current_state = next(self.astar_generator)
 
     def generate_maze(self, num_rows, num_cols):
         """
@@ -167,7 +181,7 @@ class MazeEnvironment:
 
     def draw_maze(self):
         """
-        Draws the maze to the Pygame window.
+        Draws the maze to the window with visualisation of A* search.
         """
         maze_dim = self.maze_grid.shape[0]
         for row in range(maze_dim):
@@ -192,9 +206,19 @@ class MazeEnvironment:
                     # Get a bush image scaled to the exact dimensions needed
                     bush = self.get_scaled_bush(cell_width, cell_height)
                     self.screen.blit(bush, (x, y))
-                else:  # Path
-                    pygame.draw.rect(self.screen, WHITE, (x, y, cell_width, cell_height))
-
+                else:  # Path cell
+                    # Show the current state of the A* search
+                    if self.current_state:
+                        if self.current_state['path'] and (row, col) in self.current_state['path']:
+                            pygame.draw.rect(self.screen, BLUE, (x, y, cell_width, cell_height))
+                        elif (row, col) in self.current_state['closed_set']:
+                            pygame.draw.rect(self.screen, LIGHT_BLUE, (x, y, cell_width, cell_height))
+                        elif (row, col) in self.current_state['open_set']:
+                            pygame.draw.rect(self.screen, YELLOW, (x, y, cell_width, cell_height))
+                        else:
+                            pygame.draw.rect(self.screen, WHITE, (x, y, cell_width, cell_height))
+                    else:
+                        pygame.draw.rect(self.screen, WHITE, (x, y, cell_width, cell_height))
 
     def run(self):
         while self.running:
@@ -202,16 +226,41 @@ class MazeEnvironment:
                 if event.type == pygame.QUIT:
                     self.running = False
                 elif event.type == pygame.MOUSEBUTTONDOWN:
-                    self.maze_grid = self.generate_maze(GRID_SIZE, GRID_SIZE)
-                    self.start, self.end = self.place_start_end_points()
-                    self.path = astar_search(self.maze_grid, self.start, self.end)
-                    if self.path:
-                        print(self.path)
-                        print("Path found with length:", len(self.path))
-                    else:
-                        print("No path found.")
+                    if event.button == 1: # Left click creates new maze
+                        self.maze_grid = self.generate_maze(GRID_SIZE, GRID_SIZE)
+                        self.start, self.end = self.place_start_end_points()
+                        self.reset_search()
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_SPACE: # Space to pause search
+                        self.paused = not self.paused
+                    elif event.key == pygame.K_r: # R to reset search
+                        self.reset_search()
+                    elif event.key == pygame.K_UP: # Up arrow to increase speed of search visual
+                        self.visualization_speed = min(50, self.visualization_speed + 2)
+                    elif event.key == pygame.K_DOWN: # Down arrow to decrease speed of search visual
+                        self.visualization_speed = max(1, self.visualization_speed - 2)
+
+            # Update A* visualization if not paused
+            if not self.paused and self.astar_generator:
+                try:
+                    for _ in range(self.visualization_speed):
+                        self.current_state = next(self.astar_generator)
+                except StopIteration:
+                    pass  # Search is complete
+
             self.screen.fill(WHITE)
             self.draw_maze()
+            
+            # Speed indicator displayed in top left corner
+            font = pygame.font.Font(None, 36)
+            speed_text = font.render(f"Speed: {self.visualization_speed}x", True, BLACK)
+            self.screen.blit(speed_text, (10, 10))
+            
+            # Pause indicator displayed in top right corner
+            if self.paused:
+                pause_text = font.render("PAUSED", True, BLACK)
+                self.screen.blit(pause_text, (WINDOW_SIZE - 100, 10))
+            
             pygame.display.flip()
             self.clock.tick(60)
 
